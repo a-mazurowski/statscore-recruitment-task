@@ -3,6 +3,8 @@
 namespace Tests;
 
 use App\EventHandler;
+use App\Exception\MissingDataException;
+use App\Exception\UndefinedEventException;
 use App\FileStorage;
 use App\StatisticsManager;
 use PHPUnit\Framework\TestCase;
@@ -28,13 +30,15 @@ class EventHandlerTest extends TestCase
         }
     }
     
-    public function testHandleGoalEvent(): void
+    public function testHandleFoulEvent(): void
     {
         $handler = new EventHandler($this->testFile);
         
         $eventData = [
-            'type' => 'goal',
+            'type' => 'foul',
             'player' => 'John Doe',
+            'team_id' => 'arsenal',
+            'match_id' => 'm1',
             'minute' => 23,
             'second' => 34
         ];
@@ -42,13 +46,54 @@ class EventHandlerTest extends TestCase
         $result = $handler->handleEvent($eventData);
         
         $this->assertEquals('success', $result['status']);
+        $this->assertEquals('foul', $result['event']['type']);
+        $this->assertArrayHasKey('timestamp', $result['event']);
+    }
+
+    public function testHandleGoalEvent(): void
+    {
+        $handler = new EventHandler($this->testFile);
+
+        $eventData = [
+            'type' => 'goal',
+            'scorer' => 'John Doe',
+            'team_id' => 'arsenal',
+            'match_id' => 'm1',
+            'minute' => 23,
+            'second' => 34
+        ];
+
+        $result = $handler->handleEvent($eventData);
+
+        $this->assertEquals('success', $result['status']);
         $this->assertEquals('goal', $result['event']['type']);
         $this->assertArrayHasKey('timestamp', $result['event']);
+    }
+
+    public function testHandleInvalidEvent(): void
+    {
+        $handler = new EventHandler($this->testFile);
+
+        $invalidType = bin2hex(random_bytes(16));
+
+        $eventData = [
+            'type' => $invalidType,
+            'scorer' => 'John Doe',
+            'team_id' => 'arsenal',
+            'match_id' => 'm1',
+            'minute' => 23,
+            'second' => 34
+        ];
+
+        $this->expectException(UndefinedEventException::class);
+        $this->expectExceptionMessage('Event "'.$invalidType.'" is not defined');
+
+        $result = $handler->handleEvent($eventData);
     }
     
     public function testHandleEventWithoutType(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(UndefinedEventException::class);
         $this->expectExceptionMessage('Event type is required');
         
         $handler = new EventHandler($this->testFile);
@@ -63,7 +108,10 @@ class EventHandlerTest extends TestCase
         
         $eventData = [
             'type' => 'goal',
-            'player' => 'Jane Smith'
+            'scorer' => 'Jane Smith',
+            'team_id' => 'arsenal',
+            'match_id' => 'm1',
+            'minute' => 23,
         ];
         
         $handler->handleEvent($eventData);
@@ -133,8 +181,8 @@ class EventHandlerTest extends TestCase
     
     public function testHandleFoulEventWithoutRequiredFields(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('match_id and team_id are required for foul events');
+        $this->expectException(MissingDataException::class);
+        $this->expectExceptionMessage('Data key/s "match_id", "team_id", "minute" are required');
         
         $statisticsManager = new StatisticsManager($this->testStatsFile);
         $handler = new EventHandler($this->testFile, $statisticsManager);

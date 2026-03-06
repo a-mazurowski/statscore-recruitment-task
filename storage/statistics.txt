@@ -1,7 +1,7 @@
 {
     "m1": {
         "arsenal": {
-            "fouls": 6
+            "fouls": 1
         }
     }
 }
