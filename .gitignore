@@ -1,0 +1,15 @@
+# IDE
+*~
+*.php~
+*.bak
+Thumbs.db
+desktop.ini
+.DS_Store
+.buildpath
+.project
+.settings
+*.tmproj
+.idea
+
+/vendor/
+/.phpunit.result.cache

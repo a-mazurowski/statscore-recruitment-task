@@ -1,0 +1,6 @@
+{"type":"foul","timestamp":1772731446,"data":{"type":"foul","player":"William Saliba","team_id":"arsenal","match_id":"m1","minute":45,"second":34}}
+{"type":"foul","timestamp":1772731448,"data":{"type":"foul","player":"William Saliba","team_id":"arsenal","match_id":"m1","minute":45,"second":34}}
+{"type":"foul","timestamp":1772731448,"data":{"type":"foul","player":"William Saliba","team_id":"arsenal","match_id":"m1","minute":45,"second":34}}
+{"type":"foul","timestamp":1772731449,"data":{"type":"foul","player":"William Saliba","team_id":"arsenal","match_id":"m1","minute":45,"second":34}}
+{"type":"foul","timestamp":1772731450,"data":{"type":"foul","player":"William Saliba","team_id":"arsenal","match_id":"m1","minute":45,"second":34}}
+{"type":"foul","timestamp":1772731451,"data":{"type":"foul","player":"William Saliba","team_id":"arsenal","match_id":"m1","minute":45,"second":34}}
