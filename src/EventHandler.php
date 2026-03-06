@@ -2,7 +2,7 @@
 
 namespace App;
 
-use App\Storage\FileStorage;
+use App\Broadcast\EventBroadcasterInterface;
 use App\Storage\StorageInterface;
 
 class EventHandler
@@ -11,7 +11,7 @@ class EventHandler
     
     public function __construct(
         private readonly StorageInterface $storage,
-        private readonly EventFactory $eventFactory = new EventFactory(),
+        private readonly EventBroadcasterInterface $broadcaster,
         ?StatisticsManager            $statisticsManager = null
     ) {
         $this->statisticsManager = $statisticsManager ?? new StatisticsManager($storage);
@@ -19,11 +19,13 @@ class EventHandler
     
     public function handleEvent(array $data): array
     {
-        $event = ($this->eventFactory)($data);
+        $event = new EventFactory()($data);
         
         $this->storage->save($event);
 
         $this->statisticsManager->updateStatisticsFromEvent($event);
+
+        $this->broadcaster->broadcast($event);
         
         return [
             'status' => 'success',

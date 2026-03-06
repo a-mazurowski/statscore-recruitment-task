@@ -28,8 +28,15 @@ As requested for transparency, I used the AI language model in brainstorming mod
 - fix AbstractEvent - missing 'data' key in toArray
 - fix .gitignore
 
+## ver 0.3 - add broadcasting event to clients
+- add Broadcast/EventBroadcasterInterface - basic contract
+- add Broadcast/DummyLoggerBroadcaster - PoC implementation of the EventBroadcasterInterface. It simulates real-time client notifications by logging event payloads to a local file (storage/broadcast.log), laying the groundwork for future WebSocket or Redis.
+- modify index.php - implements broadcaster for EventHandler
+- modify EventHandler - add broadcaster
+
 ## TODO
 - refactor data fields validation - it is not unified between events classes and abstract, tests not cover specific fields validation for type event - only common fields validated in abstract class.
 - refactor class structure - atm class separation is a little bit messy
 - im not sure about testing different storage implementation
 - better migrations or loading database on start - inserting tables on non exist database.sqlite is bad
+- ver 0.3 is prepared in rush as im already doing task over 4h, there is lack of testing for it atm

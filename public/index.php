@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use App\Broadcast\DummyLoggerBroadcaster;
 use App\EventHandler;
 use App\StatisticsManager;
 use App\Storage\FileStorage;
@@ -17,6 +18,7 @@ $storage = match (getenv('STORAGE_METHOD')) {
     'sqlite' => new SqliteStorage(__DIR__ . '/../storage/database.sqlite'),
     default => new FileStorage(__DIR__ . '/../storage/', 'events.txt', 'statistics.txt'),
 };
+$broadcaster = new DummyLoggerBroadcaster();
 
 if ($method === 'POST' && $path === '/event') {
     $input = file_get_contents('php://input');
@@ -28,7 +30,7 @@ if ($method === 'POST' && $path === '/event') {
         exit;
     }
     
-    $handler = new EventHandler($storage);
+    $handler = new EventHandler($storage, $broadcaster);
     
     try {
         $result = $handler->handleEvent($data);
