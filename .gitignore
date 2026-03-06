@@ -12,4 +12,6 @@ desktop.ini
 .idea
 
 /vendor/
+/storage/
 /.phpunit.result.cache
+.env

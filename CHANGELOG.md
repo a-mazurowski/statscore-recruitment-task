@@ -16,6 +16,20 @@ As requested for transparency, I used the AI language model in brainstorming mod
 - modify tests/Unit/EventHandlerTest - add tests for foul Event and invalid Event, modify exception tests for matching exception and message, modify testEventIsSavedToFile to contain the correct eventData
 - modify tests/Api/EventApiCest - add tests for goal Event and invalid Event, modify exception message
 
+## ver 0.2 - modify storage from files to sqlite
+- add Storage/StorageInterface - basic contract
+- add Storage/SqliteStorage - Sqlite instance for StorageInterface
+- add database.sql - initial migration for database
+- add .env.dist - .env distributable file
+- modify index.php - implements changes with Storage, check env for storage type
+- modify FileStorage - implements StorageInterface and save statistics
+- modify EventHandler - implements changes with Storage
+- modify docker-compose.yml - add env-file
+- fix AbstractEvent - missing 'data' key in toArray
+- fix .gitignore
 
 ## TODO
 - refactor data fields validation - it is not unified between events classes and abstract, tests not cover specific fields validation for type event - only common fields validated in abstract class.
+- refactor class structure - atm class separation is a little bit messy
+- im not sure about testing different storage implementation
+- better migrations or loading database on start - inserting tables on non exist database.sqlite is bad

@@ -4,12 +4,19 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\EventHandler;
 use App\StatisticsManager;
+use App\Storage\FileStorage;
+use App\Storage\SqliteStorage;
 
 header('Content-Type: application/json');
 
 // Simple routing
 $method = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+$storage = match (getenv('STORAGE_METHOD')) {
+    'sqlite' => new SqliteStorage(__DIR__ . '/../storage/database.sqlite'),
+    default => new FileStorage(__DIR__ . '/../storage/', 'events.txt', 'statistics.txt'),
+};
 
 if ($method === 'POST' && $path === '/event') {
     $input = file_get_contents('php://input');
@@ -21,7 +28,7 @@ if ($method === 'POST' && $path === '/event') {
         exit;
     }
     
-    $handler = new EventHandler(__DIR__ . '/../storage/events.txt');
+    $handler = new EventHandler($storage);
     
     try {
         $result = $handler->handleEvent($data);
@@ -32,7 +39,7 @@ if ($method === 'POST' && $path === '/event') {
         echo json_encode(['error' => $e->getMessage()]);
     }
 } elseif ($method === 'GET' && $path === '/statistics') {
-    $statsManager = new StatisticsManager(__DIR__ . '/../storage/statistics.txt');
+    $statsManager = new StatisticsManager($storage);
     
     $matchId = $_GET['match_id'] ?? null;
     $teamId = $_GET['team_id'] ?? null;

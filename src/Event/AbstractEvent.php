@@ -33,7 +33,7 @@ abstract class AbstractEvent implements EventInterface
         return [
             'type' => $this->type->value,
             'timestamp' => $this->timestamp,
-            [
+            'data' => [
                 'match_id' => $this->matchId,
                 'team_id' => $this->teamId,
                 'minute' => $this->minute,

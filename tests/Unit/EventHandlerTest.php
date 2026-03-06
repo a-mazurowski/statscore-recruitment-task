@@ -5,34 +5,50 @@ namespace Tests;
 use App\EventHandler;
 use App\Exception\MissingDataException;
 use App\Exception\UndefinedEventException;
-use App\FileStorage;
 use App\StatisticsManager;
+use App\Storage\FileStorage;
+use App\Storage\SqliteStorage;
+use App\Storage\StorageInterface;
 use PHPUnit\Framework\TestCase;
 
 class EventHandlerTest extends TestCase
 {
-    private string $testFile;
-    private string $testStatsFile;
+    private array $files;
+
+    private StorageInterface $storage;
     
     protected function setUp(): void
     {
-        $this->testFile = sys_get_temp_dir() . '/test_events_' . uniqid() . '.txt';
-        $this->testStatsFile = sys_get_temp_dir() . '/test_stats_' . uniqid() . '.txt';
+        if (getenv('STORAGE_METHOD') === 'sqlite') {
+            $databaseFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid() . '.sqlite';
+            $this->files = [$databaseFile];
+
+            $this->storage = new SqliteStorage($databaseFile);
+        } else {
+            $eventFile = 'test_events_' . uniqid() . '.txt';
+            $statsFile = 'test_stats_' . uniqid() . '.txt';
+
+            $this->files = [
+                sys_get_temp_dir() . DIRECTORY_SEPARATOR . $eventFile,
+                sys_get_temp_dir() . DIRECTORY_SEPARATOR . $statsFile,
+            ];
+
+            $this->storage = new FileStorage(sys_get_temp_dir(), $eventFile, $statsFile);
+        }
     }
     
     protected function tearDown(): void
     {
-        if (file_exists($this->testFile)) {
-            unlink($this->testFile);
-        }
-        if (file_exists($this->testStatsFile)) {
-            unlink($this->testStatsFile);
+        foreach ($this->files as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
         }
     }
     
     public function testHandleFoulEvent(): void
     {
-        $handler = new EventHandler($this->testFile);
+        $handler = new EventHandler($this->storage);
         
         $eventData = [
             'type' => 'foul',
@@ -52,7 +68,7 @@ class EventHandlerTest extends TestCase
 
     public function testHandleGoalEvent(): void
     {
-        $handler = new EventHandler($this->testFile);
+        $handler = new EventHandler($this->storage);
 
         $eventData = [
             'type' => 'goal',
@@ -72,7 +88,7 @@ class EventHandlerTest extends TestCase
 
     public function testHandleInvalidEvent(): void
     {
-        $handler = new EventHandler($this->testFile);
+        $handler = new EventHandler($this->storage);
 
         $invalidType = bin2hex(random_bytes(16));
 
@@ -96,15 +112,14 @@ class EventHandlerTest extends TestCase
         $this->expectException(UndefinedEventException::class);
         $this->expectExceptionMessage('Event type is required');
         
-        $handler = new EventHandler($this->testFile);
+        $handler = new EventHandler($this->storage);
         
         $handler->handleEvent([]);
     }
     
     public function testEventIsSavedToFile(): void
     {
-        $storage = new FileStorage($this->testFile);
-        $handler = new EventHandler($this->testFile);
+        $handler = new EventHandler($this->storage);
         
         $eventData = [
             'type' => 'goal',
@@ -116,16 +131,16 @@ class EventHandlerTest extends TestCase
         
         $handler->handleEvent($eventData);
         
-        $this->assertFileExists($this->testFile);
-        $savedEvents = $storage->getAll();
+        $this->assertFileExists($this->files[0]);
+        $savedEvents = $this->storage->getAll();
         $this->assertCount(1, $savedEvents);
         $this->assertEquals('goal', $savedEvents[0]['type']);
     }
     
     public function testHandleFoulEventUpdatesStatistics(): void
     {
-        $statisticsManager = new StatisticsManager($this->testStatsFile);
-        $handler = new EventHandler($this->testFile, $statisticsManager);
+        $statisticsManager = new StatisticsManager($this->storage);
+        $handler = new EventHandler($this->storage, statisticsManager: $statisticsManager);
         
         $eventData = [
             'type' => 'foul',
@@ -150,8 +165,8 @@ class EventHandlerTest extends TestCase
     
     public function testHandleMultipleFoulEventsIncrementsStatistics(): void
     {
-        $statisticsManager = new StatisticsManager($this->testStatsFile);
-        $handler = new EventHandler($this->testFile, $statisticsManager);
+        $statisticsManager = new StatisticsManager($this->storage);
+        $handler = new EventHandler($this->storage, statisticsManager: $statisticsManager);
         
         $eventData1 = [
             'type' => 'foul',
@@ -184,8 +199,8 @@ class EventHandlerTest extends TestCase
         $this->expectException(MissingDataException::class);
         $this->expectExceptionMessage('Data key/s "match_id", "team_id", "minute" are required');
         
-        $statisticsManager = new StatisticsManager($this->testStatsFile);
-        $handler = new EventHandler($this->testFile, $statisticsManager);
+        $statisticsManager = new StatisticsManager($this->storage);
+        $handler = new EventHandler($this->storage, statisticsManager: $statisticsManager);
         
         $eventData = [
             'type' => 'foul',
