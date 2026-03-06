@@ -101,6 +101,6 @@ class SqliteStorage implements StorageInterface
             $result[$stat['team_id']][$stat['event_type']] = $stat['value'];
         }
 
-        return $teamId ? $result[$teamId] : $result;
+        return $teamId ? $result[$teamId] ?? [] : $result;
     }
 }
