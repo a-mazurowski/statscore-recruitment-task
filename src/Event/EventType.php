@@ -1,15 +1,15 @@
 <?php
 
-namespace App;
-
-use App\Event\FoulEvent;
-use App\Event\GoalEvent;
+namespace App\Event;
 
 enum EventType: string
 {
     case FOUL = 'foul';
     case GOAL = 'goal';
 
+    /**
+     * @return class-string<EventInterface>
+     */
     public function className(): string
     {
         return match ($this) {

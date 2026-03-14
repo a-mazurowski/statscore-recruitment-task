@@ -3,7 +3,6 @@
 namespace App\Storage;
 
 use App\Event\EventInterface;
-use App\EventType;
 
 class FileStorage implements StorageInterface
 {

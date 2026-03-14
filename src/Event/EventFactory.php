@@ -1,17 +1,16 @@
 <?php
 
-namespace App;
+namespace App\Event;
 
-use App\Event\EventInterface;
 use App\Exception\UndefinedEventException;
 
 class EventFactory
 {
     /**
-     * @param $data
+     * @param array $data
      * @return EventInterface
      */
-    function __invoke($data): EventInterface
+    function __invoke(array $data): EventInterface
     {
         if (!isset($data['type'])) {
             throw new UndefinedEventException();

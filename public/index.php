@@ -2,9 +2,10 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use App\EventHandler;
-use App\StatisticsManager;
+use App\ClassLoader;
+use App\Controller\ApiController;
 use DI\ContainerBuilder;
+use Pecee\SimpleRouter\SimpleRouter;
 
 header('Content-Type: application/json');
 
@@ -16,57 +17,9 @@ $builder = new ContainerBuilder();
 $builder->addDefinitions(__DIR__ . '/../di.php');
 $container = $builder->build();
 
-if ($method === 'POST' && $path === '/event') {
-    $input = file_get_contents('php://input');
-    $data = json_decode($input, true);
-    
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid JSON']);
-        exit;
-    }
-    
-    $handler = $container->get(EventHandler::class);
-    
-    try {
-        $result = $handler->handleEvent($data);
-        http_response_code(201);
-        echo json_encode($result);
-    } catch (Exception $e) {
-        http_response_code(400);
-        echo json_encode(['error' => $e->getMessage()]);
-    }
-} elseif ($method === 'GET' && $path === '/statistics') {
-    $statsManager = $container->get(StatisticsManager::class);
-    
-    $matchId = $_GET['match_id'] ?? null;
-    $teamId = $_GET['team_id'] ?? null;
-    
-    try {
-        if ($matchId && $teamId) {
-            // Get team statistics for specific match
-            $stats = $statsManager->getTeamStatistics($matchId, $teamId);
-            echo json_encode([
-                'match_id' => $matchId,
-                'team_id' => $teamId,
-                'statistics' => $stats
-            ]);
-        } elseif ($matchId) {
-            // Get all team statistics for specific match
-            $stats = $statsManager->getMatchStatistics($matchId);
-            echo json_encode([
-                'match_id' => $matchId,
-                'statistics' => $stats
-            ]);
-        } else {
-            http_response_code(400);
-            echo json_encode(['error' => 'match_id is required']);
-        }
-    } catch (Exception $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
-    }
-} else {
-    http_response_code(404);
-    echo json_encode(['error' => 'Not found']);
-}
+SimpleRouter::setDefaultNamespace('\Api\Controller');
+SimpleRouter::setCustomClassLoader(new ClassLoader($container));
+SimpleRouter::post('/event/', [ApiController::class, 'handleEvent']);
+SimpleRouter::get('/statistics/', [ApiController::class, 'statistics']);
+
+SimpleRouter::start();

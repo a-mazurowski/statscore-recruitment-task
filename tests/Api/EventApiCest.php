@@ -122,7 +122,7 @@ class EventApiCest
         $I->seeResponseCodeIs(400);
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson([
-            'error' => 'Invalid JSON'
+            'error' => 'Event type is required'
         ]);
     }
 

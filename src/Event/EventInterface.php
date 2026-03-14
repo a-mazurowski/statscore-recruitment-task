@@ -2,8 +2,6 @@
 
 namespace App\Event;
 
-use App\EventType;
-
 interface EventInterface
 {
     public EventType $type {

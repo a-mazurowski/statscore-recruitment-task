@@ -2,9 +2,6 @@
 
 namespace App\Event;
 
-use App\Event\AbstractEvent;
-use App\Event\EventInterface;
-use App\EventType;
 use App\Exception\MissingDataException;
 
 class FoulEvent extends AbstractEvent implements EventInterface

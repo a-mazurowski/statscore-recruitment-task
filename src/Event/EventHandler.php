@@ -1,8 +1,9 @@
 <?php
 
-namespace App;
+namespace App\Event;
 
 use App\Broadcast\EventBroadcasterInterface;
+use App\Statistics\StatisticsManager;
 use App\Storage\StorageInterface;
 
 readonly class EventHandler

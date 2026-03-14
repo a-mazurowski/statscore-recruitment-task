@@ -1,8 +1,9 @@
 <?php
 
-namespace App;
+namespace App\Statistics;
 
 use App\Event\EventInterface;
+use App\Event\EventType;
 use App\Storage\StorageInterface;
 
 readonly class StatisticsManager

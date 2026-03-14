@@ -2,8 +2,6 @@
 
 namespace App\Event;
 
-use App\Event\EventInterface;
-use App\EventType;
 use App\Exception\MissingDataException;
 
 abstract class AbstractEvent implements EventInterface
