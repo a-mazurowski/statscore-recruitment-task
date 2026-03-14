@@ -5,9 +5,9 @@ namespace App;
 use App\Event\EventInterface;
 use App\Storage\StorageInterface;
 
-class StatisticsManager
+readonly class StatisticsManager
 {
-    public function __construct(private readonly StorageInterface $storage)
+    public function __construct(private StorageInterface $storage)
     {}
 
     public function updateStatisticsFromEvent(EventInterface $event): void

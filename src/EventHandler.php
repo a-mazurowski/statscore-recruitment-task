@@ -5,17 +5,13 @@ namespace App;
 use App\Broadcast\EventBroadcasterInterface;
 use App\Storage\StorageInterface;
 
-class EventHandler
+readonly class EventHandler
 {
-    private StatisticsManager $statisticsManager;
-    
     public function __construct(
-        private readonly StorageInterface $storage,
-        private readonly EventBroadcasterInterface $broadcaster,
-        ?StatisticsManager            $statisticsManager = null
-    ) {
-        $this->statisticsManager = $statisticsManager ?? new StatisticsManager($storage);
-    }
+        private StorageInterface          $storage,
+        private EventBroadcasterInterface $broadcaster,
+        private StatisticsManager         $statisticsManager,
+    ) { }
     
     public function handleEvent(array $data): array
     {
