@@ -12,6 +12,7 @@ desktop.ini
 .idea
 
 /vendor/
-/storage/
+/storage/*
+!/storage/.gitkeep
 /.phpunit.result.cache
 .env
